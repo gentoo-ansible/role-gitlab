@@ -1,0 +1,82 @@
+#!/sbin/runscript
+# Copyright 1999-2015 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+name="GitLab"
+description="GitLab version control"
+
+extra_started_commands="reload"
+description_reload="Reload the GitLab configuration."
+
+: ${gitlab_user:=git}
+: ${gitlab_base:=/opt/gitlab}
+: ${rails_env:=production}
+: ${unicorn_config:=${gitlab_base}/config/unicorn.rb}
+
+: ${server_pidfile:=/run/gitlab/unicorn.pid}
+
+: ${sidekiq_pidfile:=/run/gitlab/sidekiq.pid}
+: ${sidekiq_logfile:=/var/log/gitlab/sidekiq.log}
+sidekiq_queues=(${sidekiq_queues:-post_receive mailer system_hook project_web_hook gitlab_shell common default})
+
+required_files="$unicorn_config"
+
+server_command="/usr/bin/bundle"
+server_command_args="exec unicorn_rails -c $unicorn_config -E $rails_env -D"
+
+sidekiq_command="/usr/bin/bundle"
+sidekiq_command_args="exec sidekiq ${sidekiq_queues[@]/#/-q } -P $sidekiq_pidfile -L $sidekiq_logfile"
+
+depend() {
+	provide gitlab
+	need redis
+	use net postgresql
+}
+
+start() {
+	ebegin "Starting $name (Unicorns)"
+
+	checkpath -d -o $gitlab_user -m755 "$(dirname "$server_pidfile")"
+
+	start-stop-daemon --start \
+		--chdir "$gitlab_base" \
+		--user=$gitlab_user \
+		--pidfile="$server_pidfile" \
+		--env RAILS_ENV=$rails_env \
+		--exec $server_command -- $server_command_args
+	eend $?
+
+	ebegin "Starting $name (Sidekiq)"
+
+	checkpath -d -o $gitlab_user -m755 "$(dirname "$sidekiq_pidfile")"
+
+	start-stop-daemon --start \
+		--background --quiet \
+		--chdir "$gitlab_base" \
+		--user=$gitlab_user \
+		--pidfile="$sidekiq_pidfile" \
+		--env RAILS_ENV=$rails_env \
+		--exec $sidekiq_command -- $sidekiq_command_args
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping $name (Sidekiq)"
+	start-stop-daemon --stop \
+		--pidfile=$sidekiq_pidfile \
+		--exec $sidekiq_command
+	eend $?
+
+	ebegin "Stopping $name (Unicorns)"
+	start-stop-daemon --stop \
+		--signal QUIT \
+		--pidfile=$server_pidfile \
+		--exec $server_command
+	eend $?
+}
+
+reload() {
+	ebegin "Reloading $name"
+	kill -USR2 $(head -n1 $server_pidfile)
+	eend $?
+}

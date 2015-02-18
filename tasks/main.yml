@@ -1,0 +1,34 @@
+---
+- include: install.yml
+  tags: install
+
+- include: configure.yml
+  tags: config
+
+- include: database.yml
+  delegate_to: "{{ gitlab_db_delegate_to }}"
+  sudo: yes
+  sudo_user: postgres
+  tags: database
+
+- include: initialize.yml
+  sudo: yes
+  sudo_user: "{{ gitlab_user }}"
+  when: _gitlab_init | changed
+  tags: install
+
+- include: upgrade.yml
+  sudo: yes
+  sudo_user: "{{ gitlab_user }}"
+  when: _gitlab_init | skipped and _gitlab_clone.before != _gitlab_clone.after
+  tags: install
+
+  # Trigger handlers now to avoid unnecessary restarts.
+- meta: flush_handlers
+
+- name: enable and start gitlab
+  service: >
+    name=gitlab
+    enabled=yes
+    state=started
+  tags: services

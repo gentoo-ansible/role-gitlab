@@ -1,0 +1,34 @@
+---
+  # The aim is to exclude unwanted directories and avoid its recreating
+  # on every checkout.
+- name: prepare sparse git repository for gitlab
+  shell: |
+    git init
+    git config core.sparsecheckout true
+    git remote add origin {{ gitlab_source_url }}
+    chdir={{ gitlab_base_dir }}
+    creates={{ gitlab_base_dir }}/.git
+  register: _gitlab_init
+
+- name: configure sparse-checkout for gitlab
+  copy: >
+    dest={{ gitlab_base_dir }}/.git/info/sparse-checkout
+    content='{{ gitlab_sparsecheckout | join("\n") }}'
+
+- name: clone gitlab source repository
+  git: >
+    repo={{ gitlab_source_url }}
+    version={{ gitlab_source_rev }}
+    dest={{ gitlab_base_dir }}
+    accept_hostkey=yes
+  register: _gitlab_clone
+
+- name: fix gemfile - move therubyracer gem to a separate group
+  lineinfile: >
+    state=absent
+    dest={{ gitlab_base_dir }}/Gemfile
+    regexp='\s+gem "therubyracer"$'
+
+- lineinfile: >
+    line='gem "therubyracer", group: :therubyracer'
+    dest={{ gitlab_base_dir }}/Gemfile

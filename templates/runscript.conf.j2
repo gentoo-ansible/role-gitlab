@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+# User to run GitLab. Default is git.
+gitlab_user="{{ gitlab_user }}"
+
+# Base directory of the GitLab app. Default is /opt/gitlab.
+gitlab_base="{{ gitlab_base_dir }}"
+
+# Path of the unicorn.rb config file.
+# Default is ${gitlab_base}/config/unicorn.rb.
+unicorn_config="{{ gitlab_conf_dir }}/unicorn.rb"
+
+# Path of the sidekiq log file.
+# Default is /var/log/gitlab/sidekiq.log.
+sidekiq_logfile="{{ gitlab_logs_dir }}/sidekiq.log"

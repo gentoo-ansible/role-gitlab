@@ -1,0 +1,22 @@
+---
+  # The aim is to exclude unwanted directories and avoid its recreating
+  # on every checkout.
+- name: prepare sparse git repository for gitlab-shell
+  shell: |
+    git init
+    git config core.sparsecheckout true
+    git remote add origin {{ gitlab_shell_source_url }}
+    chdir={{ gitlab_shell_dir }}
+    creates={{ gitlab_shell_dir }}/.git
+
+- name: configure sparse-checkout for gitlab-shell
+  copy: >
+    dest={{ gitlab_shell_dir }}/.git/info/sparse-checkout
+    content='{{ gitlab_shell_sparsecheckout | join("\n") }}'
+
+- name: clone gitlab-shell source repository
+  git: >
+    repo={{ gitlab_shell_source_url }}
+    version={{ gitlab_shell_source_rev }}
+    dest={{ gitlab_shell_dir }}
+    accept_hostkey=yes

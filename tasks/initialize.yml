@@ -1,0 +1,15 @@
+---
+- name: run bundle install (this will take few minutes)
+  command: >
+    bundle install {{ gitlab_bundle_install_opts }}
+    chdir={{ gitlab_base_dir }}
+
+- name: initialize database
+  shell: >
+    yes 'yes' | bundle exec rake gitlab:setup RAILS_ENV=production GITLAB_ROOT_PASSWORD={{ gitlab_initial_root_password }}
+    chdir={{ gitlab_base_dir }}
+
+- name: precompile assets (this will take few minutes)
+  command: >
+    bundle exec rake assets:precompile RAILS_ENV=production
+    chdir={{ gitlab_base_dir }}

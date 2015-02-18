@@ -1,0 +1,24 @@
+---
+gitlab_user: git
+gitlab_group: git
+
+# Paths to exclude from the gitlabhq source repo.
+gitlab_sparsecheckout:
+  - '/*'
+  - '!/bin/background_jobs'
+  - '!/bin/pkgr_before_precompile.sh'
+  - '!/bin/web'
+  - '!/docker'
+  - '!/lib/support'
+  - '!/log'
+  - '!/tmp'
+  - '!/config/initializers/gitlab_shell_secret_token.rb'
+  - '!/.ruby-version'
+
+# Paths to exclude from the gitlab-shell source repo.
+gitlab_shell_sparsecheckout:
+  - '/*'
+  - '!/support'
+
+gitlab_bundle_install_opts: "-j{{ ansible_processor_count }} --deployment \
+    --without aws development kerberos mysql test therubyracer"

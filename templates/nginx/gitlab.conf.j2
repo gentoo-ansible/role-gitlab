@@ -1,0 +1,68 @@
+# {{ ansible_managed }}
+
+#
+# GitLab
+#
+
+upstream gitlab {
+	server unix:/run/gitlab/gitlab.sock;
+}
+
+server {
+	listen			{{ gitlab_port }}{{ ' ssl' if gitlab_ssl_enabled else '' }};
+	server_name		{{ gitlab_host }};
+
+	root			{{ gitlab_base_dir }}/public/;
+
+	access_log		/var/log/nginx/gitlab.access.log main;
+	error_log		/var/log/nginx/gitlab.error.log warn;
+
+	# Set to at least the value of git.max_size in gitlab.yml
+	client_max_body_size {{ gitlab_commit_max_size + 1 }}m;
+
+{% if gitlab_ssl_enabled %}
+	ssl_certificate		{{ gitlab_ssl_cert }};
+	ssl_certificate_key	{{ gitlab_ssl_key }};
+
+	# Enable HSTS Policy
+	add_header Strict-Transport-Security "max-age=315360000";
+
+{% endif %}
+	error_page 500 502 504 /500.html;
+
+	# Serve precompiled assets directly
+	location /assets/ {
+		gzip_static	on;
+		expires 	max;
+		add_header 	Cache-Control public;
+	}
+
+	location / {
+		# Serve static files from defined root directory.
+		try_files $uri $uri/index.html $uri.html @gitlab;
+	}
+
+	# If a file which is not found in the root directory is requested,
+	# then pass to upstream server.
+	location @gitlab {
+		proxy_pass			http://gitlab;
+
+		proxy_read_timeout	120;
+		proxy_redirect		off;
+
+		# Common proxy headers.
+		proxy_set_header	Host				$http_host;
+		proxy_set_header	X-Real-IP			$remote_addr;
+		proxy_set_header	X-Forwarded-For		$proxy_add_x_forwarded_for;
+		proxy_set_header	X-Forwarded-Proto	$scheme;
+	}
+}
+{% if gitlab_ssl_enabled %}
+
+server {
+	listen			[::]:80;
+	server_name		{{ gitlab_host }};
+
+	rewrite			^ https://$server_name$request_uri? permanent;
+}
+{% endif %}

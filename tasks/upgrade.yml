@@ -1,0 +1,34 @@
+---
+# TODO: This rake task doesn't work alone...
+#- name: backup database
+#  command: >
+#    bundle exec rake gitlab:backup:db:create RAILS_ENV=production
+#    chdir={{ gitlab_base_dir }}
+
+- name: stop gitlab
+  sudo_user: root
+  service: >
+    name=gitlab
+    state=stopped
+
+- name: run bundle install (this will take few minutes)
+  command: >
+    bundle install {{ gitlab_bundle_install_opts }}
+    chdir={{ gitlab_base_dir }}
+
+- name: migrate database
+  command: >
+    bundle exec rake db:migrate RAILS_ENV=production
+    chdir={{ gitlab_base_dir }}
+  notify: restart gitlab
+
+- name: clean and precompile assets (this will take few minutes)
+  command: >
+    bundle exec rake assets:clean assets:precompile RAILS_ENV=production
+    chdir={{ gitlab_base_dir }}
+  notify: restart gitlab
+
+- name: clean gitlab cache
+  command: >
+    bundle exec rake cache:clear RAILS_ENV=production
+    chdir={{ gitlab_base_dir }}

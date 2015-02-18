@@ -1,0 +1,80 @@
+---
+- name: configure git
+  template: >
+    src=gitconfig.j2
+    dest={{ gitlab_user_home }}/.gitconfig
+    owner={{ gitlab_user }}
+    group={{ gitlab_group }}
+    mode=0644
+
+- name: initialize authorized_keys file
+  file: >
+    state=touch
+    path={{ gitlab_user_home }}/.ssh/authorized_keys
+    owner={{ gitlab_user }}
+    group={{ gitlab_group }}
+    mode=0640
+
+- name: configure gitlab-shell
+  template: >
+    src=gitlab-shell.yml.j2
+    dest={{ gitlab_conf_dir }}/gitlab-shell.yml
+    owner=root
+    group={{ gitlab_group }}
+    mode=0644
+
+- name: symlink gitlab-shell config
+  file: >
+    state=link
+    src={{ gitlab_conf_dir }}/gitlab-shell.yml
+    dest={{ gitlab_shell_dir }}/config.yml
+    force=yes
+
+- name: generate random password for gitlab-shell
+  shell: |
+    ruby -e 'require "securerandom"; puts SecureRandom.hex(16)' > gitlab_shell.secret
+    chgrp '{{ gitlab_group }}' gitlab_shell.secret
+    chmod 640 gitlab_shell.secret
+    chdir={{ gitlab_conf_dir }}
+    creates={{ gitlab_conf_dir }}/gitlab_shell.secret
+  notify: reload gitlab
+
+- name: configure gitlab
+  template: >
+    src={{ item.path }}.j2
+    dest={{ gitlab_conf_dir }}/{{ item.path }}
+    owner=root
+    group={{ gitlab_group }}
+    mode={{ item.mode | default('0644') }}
+  with_items:
+    - { path: gitlab.yml }
+    - { path: resque.yml }
+    - { path: unicorn.rb }
+    - { path: database.yml, mode: '0640' }
+  notify: reload gitlab
+
+- name: symlink gitlab configs to default location
+  file: >
+    state=link
+    src={{ gitlab_conf_dir }}/{{ item }}
+    dest={{ gitlab_base_dir }}/config/{{ item }}
+    force=yes
+  with_items:
+    - database.yml
+    - gitlab.yml
+    - resque.yml
+    - unicorn.rb
+
+#- name: ensure log level is :warn
+#  lineinfile: >
+#    dest={{ gitlab_conf_dir }}/environments/production.rb
+#    regexp='^[#\s]*config.log_level'
+#    line='  config.log_level = :warn'
+#  notify: reload gitlab
+
+- name: configure gitlab runscript
+  template: >
+    src=runscript.conf.j2
+    dest=/etc/conf.d/gitlab
+    owner=root group=root mode=0644
+  notify: restart gitlab

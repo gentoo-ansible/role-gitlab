@@ -1,0 +1,12 @@
+---
+- name: create database user
+  postgresql_user: >
+    name={{ gitlab_db_user }}
+    password={{ gitlab_db_pass }}
+  tags: accounts
+
+- name: create database
+  postgresql_db: >
+    name={{ gitlab_db_name }}
+    owner={{ gitlab_db_user }}
+    encoding='UTF-8'

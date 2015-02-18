@@ -1,0 +1,154 @@
+---
+#
+# Sources
+#
+
+# URL of the gitlabhq repository to clone.
+# Note: This repo is a fork that contains important patches that are not merged
+# into upstream yet.
+gitlab_source_url: https://github.com/jirutka/gitlabhq.git
+
+# Revision (tag or branch) of the gitlabhq to checkout.
+gitlab_source_rev: 7-7-stable-cvut
+
+# URL of the gitlab-shell repository to clone.
+# Note: This repo is a fork that contains important patches that are not merged
+# into upstream yet.
+gitlab_shell_source_url: https://github.com/jirutka/gitlab-shell.git
+
+# Revision (tag or branch) of the gitlab-shell to checkout.
+gitlab_shell_source_rev: patch-1  # 2.4.3
+
+#
+# GitLab settings
+#
+
+# Domain name and port of this GitLab instance.
+gitlab_host: "{{ inventory_hostname }}"
+gitlab_port: "{{ 443 if gitlab_ssl_enabled | bool else 80 }}"
+gitlab_ssl_enabled: true
+
+# Default time zone.
+gitlab_time_zone: "{{ timezone | default('Europe/Prague') }}"
+
+# Allow anyone to register an account?
+gitlab_signup_enabled: false
+
+# Allow users to change their username/namespace?
+# Default is 'true' if LDAP authentication is disabled, otherwise 'false'.
+gitlab_username_changing_enabled: "{{ gitlab_ldap | bool }}"
+
+# Hash of options for LDAP authentication. If empty then LDAP authentication
+# will be disabled.
+#
+# Options:
+#   label:       A human-friendly name for your LDAP server; default is "LDAP".
+#   host:        Domain name of the LDAP server (required).
+#   port:        The LDAP server port; default is 636.
+#   method:      Use "tls", "ssl", or "plain"? Default is "ssl".
+#   bind_dn:     Fully qualified distinguished name (DN) of the user to bind
+#                with. Default is to bind anonymously.
+#   bind_pass:   The password of the bind user; default is empty.
+#   base:        Base DN where to search users (required).
+#   user_filter: Filter users using RFC 4515 filter.
+#   active_directory: Is your LDAP an Active Directory server? Default is "false".
+gitlab_ldap: {}
+
+# The maximum size per git object (e.g. a commit) in megabytes.
+# This value can be increased if you have very large commits.
+gitlab_commit_max_size: 5
+
+# Default limit for number of projects per user.
+gitlab_default_projects_limit: 100
+
+# Text under sign-in page (Markdown enabled).
+gitlab_sign_in_text: ''
+
+# Google analytics tracking ID.
+gitlab_google_analytics_id: ''
+
+# The initial password for the GitLab root (admin) user.
+# It must be at least 8 chars long!
+gitlab_initial_root_password: 5iveL!fe
+
+#
+# Outgoing emails
+#
+
+# Email address used in the "From" field in mails sent by GitLab.
+gitlab_email_from: "gitlab@{{ gitlab_host }}"
+
+# Email address used in the "Reply-To" field in mails sent by GitLab.
+gitlab_email_reply_to: "{{ gitlab_email_from }}"
+
+# Hostname of the SMTP server used to send emails.
+gitlab_smtp_host: "{{ smtp_host | default('localhost') }}"
+
+# Port of the SMTP server used to send emails.
+gitlab_smtp_port: "{{ smtp_port | default(25) }}"
+
+#
+# PostgreSQL
+#
+
+gitlab_db_name: gitlab
+gitlab_db_user: gitlab
+gitlab_db_pass: gitlab
+gitlab_db_host: "{{ pg_host | default('localhost') }}"
+gitlab_db_port: 5432
+gitlab_db_pool: 10
+
+# Should not be changed!
+gitlab_db_delegate_to: "{{ gitlab_db_host | replace('localhost', inventory_hostname) | replace('127.0.0.1', inventory_hostname) }}"
+
+#
+# Redis
+#
+
+# Path of the Redis socket.
+gitlab_redis_socket_path: /run/redis/redis.sock
+
+# Name (number) of the Redis database to use.
+gitlab_redis_db: 0
+
+#
+# Unicorn
+#
+
+# Number of worker processes to use.
+# Default is same as the number of CPU cores.
+gitlab_unicorn_workers: "{{ ansible_processor_count }}"
+
+# List of addresses the Unicorn should listen on. Address may be a port,
+# optionally with an IP address (ex. 127.0.0.1:8080), or an absolute path for
+# UNIX socket.
+gitlab_unicorn_listen:
+  - /run/gitlab/gitlab.sock
+
+#
+# Paths
+#
+
+# Path of the directory to install gitlab into.
+gitlab_base_dir: /opt/gitlab
+
+# Path of the directory to install gitlab-shell into.
+gitlab_shell_dir: /opt/gitlab-shell
+
+# Path of the configuration directory.
+gitlab_conf_dir: /etc/gitlab
+
+# Path of the logs directory.
+gitlab_logs_dir: /var/log/gitlab
+
+# Path of the temp directory.
+gitlab_temp_dir: /var/tmp/gitlab
+
+# Path of the home directory for {{gitlab_user}}.
+gitlab_user_home: /var/lib/git
+
+# Path of the directory where the bare repositories should be stored.
+gitlab_repos_dir: /var/lib/git/repositories
+
+# Path of the directory where the satellite repositories should be cloned to.
+gitlab_satellites_dir: /var/lib/git/repo_satellites

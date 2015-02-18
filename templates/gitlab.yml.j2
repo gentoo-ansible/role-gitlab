@@ -1,0 +1,384 @@
+# {{ ansible_managed }}
+
+# # # # # # # # # # # # # # # # # #
+# GitLab application config file  #
+# # # # # # # # # # # # # # # # # #
+#
+# How to use:
+# 1. Copy file as gitlab.yml
+# 2. Update gitlab -> host with your fully qualified domain name
+# 3. Update outgoing_emails -> from
+# 4. If you installed Git from source, change git -> bin_path to /usr/local/bin/git
+# 5. Review this configuration file for other settings you may want to adjust
+
+production: &base
+  #
+  # 1. GitLab app settings
+  # ==========================
+
+  ## GitLab settings
+  gitlab:
+    ## Web server settings (note: host is the FQDN, do not include http://)
+    host: {{ gitlab_host }}
+    port: {{ gitlab_port }}
+    https: {{ gitlab_ssl_enabled | bool | lower }}
+
+    # Uncommment this line below if your ssh host is different from HTTP/HTTPS one
+    # (you'd obviously need to replace ssh.host_example.com with your own host).
+    # Otherwise, ssh host will be set to the `host:` value above
+    # ssh_host: ssh.host_example.com
+
+    # WARNING: See config/application.rb under "Relative url support" for the list of
+    # other files that need to be changed for relative url support
+    # relative_url_root: /gitlab
+
+    # Uncomment and customize if you can't use the default user to run GitLab (default: 'git')
+    user: {{ gitlab_user }}
+
+    ## Date & Time settings
+    # Uncomment and customize if you want to change the default time zone of GitLab application.
+    # To see all available zones, run `bundle exec rake time:zones:all RAILS_ENV=production`
+    time_zone: '{{ gitlab_time_zone }}'
+
+    # Email server smtp settings are in config/initializers/smtp_settings.rb.sample
+
+    ## User settings
+    default_projects_limit: {{ gitlab_default_projects_limit }}
+
+    # default: true
+    # default_can_create_group: false
+
+    # User can change her username/namespace (default: true)
+    username_changing_enabled: false
+
+    ## Default theme
+    #   BASIC  = 1
+    #   MARS   = 2
+    #   MODERN = 3
+    #   GRAY   = 4
+    #   COLOR  = 5
+    default_theme: 4 # default: 2
+
+    ## Users can create accounts
+    # This also allows normal users to sign up for accounts themselves
+    # default: true - By default users can sign up themselves
+    signup_enabled: {{ gitlab_signup_enabled | bool | lower }}
+
+    ## Standard login settings
+    # The standard login can be disabled to force login via LDAP
+    # default: true - If set to false the standard login form won't be shown on the sign-in page
+    # signin_enabled: false
+
+    # Restrict setting visibility levels for non-admin users.
+    # The default is to allow all levels.
+    # restricted_visibility_levels: [ "public" ]
+
+    ## Automatic issue closing
+    # If a commit message matches this regular expression, all issues referenced from the matched text will be closed.
+    # This happens when the commit is pushed or merged into the default branch of a project.
+    # When not specified the default issue_closing_pattern as specified below will be used.
+    # Tip: you can test your closing pattern at http://rubular.com
+    # issue_closing_pattern: '((?:[Cc]los(?:e[sd]|ing)|[Ff]ix(?:e[sd]|ing)?) +(?:(?:issues? +)?#\d+(?:(?:, *| +and +)?))+)'
+
+    ## Default project features settings
+    default_projects_features:
+      issues: true
+      merge_requests: true
+      wiki: true
+      snippets: false
+      visibility_level: "private"  # can be "private" | "internal" | "public"
+
+    ## Webhook settings
+    # Number of seconds to wait for HTTP response after sending webhook HTTP POST request (default: 10)
+    # webhook_timeout: 10
+
+    ## Repository downloads directory
+    # When a user clicks e.g. 'Download zip' on a project, a temporary zip file is created in the following directory.
+    # The default is 'tmp/repositories' relative to the root of the Rails app.
+    repository_downloads_path: {{ gitlab_temp_dir }}/download
+
+  ## Settings for sending emails
+  outgoing_emails:
+
+    # Set to false if you need to disable email sending from GitLab (default: true).
+    enabled: true
+
+    # Email address used in the "From" field in mails sent by GitLab.
+    from: "{{ gitlab_email_from }}"
+
+    # Email address used in the "Reply-To" field in mails sent by GitLab (default: noreply@<host>).
+    reply_to: "{{ gitlab_email_reply_to }}"
+
+    # Defines a delivery method. Possible values are:
+    #   :sendmail      - send emails using sendmail command (default).
+    #   :smtp          - send emails using SMTP server.
+    #   :letter_opener - open sent emails in browser.
+    #   :test          - save emails to ActionMailer::Base.deliveries array.
+    delivery_method: :smtp
+
+    # Settings for the :sendmail delivery method.
+    sendmail_settings:
+      # The location of the sendmail executable (default: /usr/sbin/sendmail).
+      location: /usr/sbin/sendmail
+
+      # The command line arguments to be passed to sendmail (default: -i -t).
+      arguments: '-i -t'
+
+    # Settings for the :smtp delivery method.
+    smtp_settings:
+      # Hostname of the SMTP server used to send emails (default: localhost).
+      address: {{ gitlab_smtp_host }}
+
+      # Port of the SMTP server used to send emails (default: 25).
+      port: {{ gitlab_smtp_port }}
+
+      # If your mail server requires authentication, you need to specify the
+      # authentication type here. Possible values are:
+      #   :plain    - send the password in the clear text.
+      #   :login    - send password Base64 encoded.
+      #   :cram_md5 - combines a Challenge/Response mechanism to exchange information and
+      #               a cryptographic Message Digest 5 algorithm to hash important information.
+      # authentication: :plain
+      # user_name: 'gitlab'
+      # password: '123456'
+
+      # Detects if STARTTLS is enabled in your SMTP server and starts to use it.
+      # Set this to false if there is a problem with your server certificate
+      # that you cannot resolve. It should be true for Gmail SMTP.
+      # enable_starttls_auto: true
+
+  ## External issues trackers
+  issues_tracker:
+    # redmine:
+    #   title: "Redmine"
+    #   ## If not nil, link 'Issues' on project page will be replaced with this
+    #   ## Use placeholders:
+    #   ##  :project_id        - GitLab project identifier
+    #   ##  :issues_tracker_id - Project Name or Id in external issue tracker
+    #   project_url: "http://redmine.sample/projects/:issues_tracker_id"
+    #
+    #   ## If not nil, links from /#\d/ entities from commit messages will replaced with this
+    #   ## Use placeholders:
+    #   ##  :project_id        - GitLab project identifier
+    #   ##  :issues_tracker_id - Project Name or Id in external issue tracker
+    #   ##  :id                - Issue id (from commit messages)
+    #   issues_url: "http://redmine.sample/issues/:id"
+    #
+    #   ## If not nil, links to creating new issues will be replaced with this
+    #   ## Use placeholders:
+    #   ##  :project_id        - GitLab project identifier
+    #   ##  :issues_tracker_id - Project Name or Id in external issue tracker
+    #   new_issue_url: "http://redmine.sample/projects/:issues_tracker_id/issues/new"
+    #
+    # jira:
+    #   title: "Atlassian Jira"
+    #   project_url: "http://jira.sample/issues/?jql=project=:issues_tracker_id"
+    #   issues_url: "http://jira.sample/browse/:id"
+    #   new_issue_url: "http://jira.sample/secure/CreateIssue.jspa"
+
+  ## Gravatar
+  ## For Libravatar see: http://doc.gitlab.com/ce/customization/libravatar.html
+  gravatar:
+    enabled: true                 # Use user avatar image from Gravatar.com (default: true)
+    # gravatar urls: possible placeholders: %{hash} %{size} %{email}
+    # plain_url: "http://..."     # default: http://www.gravatar.com/avatar/%{hash}?s=%{size}&d=identicon
+    # ssl_url:   "https://..."    # default: https://secure.gravatar.com/avatar/%{hash}?s=%{size}&d=identicon
+
+  #
+  # 2. Auth settings
+  # ==========================
+
+  ## LDAP settings
+  # You can inspect a sample of the LDAP users with login access by running:
+  #   bundle exec rake gitlab:ldap:check RAILS_ENV=production
+  ldap:
+    enabled: {{ 'true' if gitlab_ldap else 'false' }}
+    servers:
+      main: # 'main' is the GitLab 'provider ID' of this LDAP server
+        ## label
+        #
+        # A human-friendly name for your LDAP server. It is OK to change the label later,
+        # for instance if you find out it is too large to fit on the web page.
+        #
+        # Example: 'Paris' or 'Acme, Ltd.'
+        label: {{ gitlab_ldap.label | default('LDAP') }}
+
+        host: {{ gitlab_ldap.host | default('_your_ldap_server') }}
+        port: {{ gitlab_ldap.port | default('636') }}
+        uid: {{ 'sAMAccountName' if gitlab_ldap.active_directory | default('false') | bool else 'uid' }}
+        method: {{ gitlab_ldap.method | default('ssl') | lower }} # "tls" or "ssl" or "plain"
+        bind_dn: "{{ gitlab_ldap.bind_dn | default('') }}"
+        password: "{{ gitlab_ldap.bind_pass | default('') }}"
+        mapping:
+{% for key,val in (gitlab_ldap.mapping | default({})).items() %}
+          {{ key }}: "{{ val }}"
+{% else %}
+          username: "uid"
+{% endfor %}
+
+        # This setting specifies if LDAP server is Active Directory LDAP server.
+        # For non AD servers it skips the AD specific queries.
+        # If your LDAP server is not AD, set this to false.
+        active_directory: {{ gitlab_ldap.active_directory | default('false') | bool | lower }}
+
+        # If allow_username_or_email_login is enabled, GitLab will ignore everything
+        # after the first '@' in the LDAP username submitted by the user on login.
+        #
+        # Example:
+        # - the user enters 'jane.doe@example.com' and 'p@ssw0rd' as LDAP credentials;
+        # - GitLab queries the LDAP server with 'jane.doe' and 'p@ssw0rd'.
+        #
+        # If you are using "uid: 'userPrincipalName'" on ActiveDirectory you need to
+        # disable this setting, because the userPrincipalName contains an '@'.
+        allow_username_or_email_login: false
+
+        # Base where we can search for users
+        #
+        #   Ex. ou=People,dc=gitlab,dc=example
+        #
+        base: "{{ gitlab_ldap.base | default('') }}"
+
+        # Filter LDAP users
+        #
+        #   Format: RFC 4515 http://tools.ietf.org/search/rfc4515
+        #   Ex. (employeeType=developer)
+        #
+        #   Note: GitLab does not support omniauth-ldap's custom filter syntax.
+        #
+        user_filter: "{{ gitlab_ldap.user_filter | default('') }}"
+
+
+  ## OmniAuth settings
+  omniauth:
+    # Allow login via Twitter, Google, etc. using OmniAuth providers
+    enabled: false
+
+    # CAUTION!
+    # This allows users to login without having a user account first (default: false).
+    # User accounts will be created automatically when authentication was successful.
+    allow_single_sign_on: false
+    # Locks down those users until they have been cleared by the admin (default: true).
+    block_auto_created_users: true
+
+    ## Auth providers
+    # Uncomment the following lines and fill in the data of the auth provider you want to use
+    # If your favorite auth provider is not listed you can use others:
+    # see https://github.com/gitlabhq/gitlab-public-wiki/wiki/Custom-omniauth-provider-configurations
+    # The 'app_id' and 'app_secret' parameters are always passed as the first two
+    # arguments, followed by optional 'args' which can be either a hash or an array.
+    # Documentation for this is available at http://doc.gitlab.com/ce/integration/omniauth.html
+    providers:
+      # - { name: 'google_oauth2', app_id: 'YOUR APP ID',
+      #     app_secret: 'YOUR APP SECRET',
+      #     args: { access_type: 'offline', approval_prompt: '' } }
+      # - { name: 'twitter', app_id: 'YOUR APP ID',
+      #     app_secret: 'YOUR APP SECRET'}
+      # - { name: 'github', app_id: 'YOUR APP ID',
+      #     app_secret: 'YOUR APP SECRET',
+      #     args: { scope: 'user:email' } }
+      # - { name: 'gitlab', app_id: 'YOUR APP ID',
+      #     app_secret: 'YOUR APP SECRET',
+      #     args: { scope: 'api' } }
+
+
+
+  #
+  # 3. Advanced settings
+  # ==========================
+
+  # GitLab Satellites
+  satellites:
+    # Relative paths are relative to Rails.root (default: tmp/repo_satellites/)
+    path: {{ gitlab_satellites_dir }}/
+    timeout: 30
+
+  ## Backup settings
+  backup:
+    path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
+    # keep_time: 604800   # default: 0 (forever) (in seconds)
+    # upload:
+    #   # Fog storage connection settings, see http://fog.io/storage/ .
+    #   connection:
+    #     provider: AWS
+    #     region: eu-west-1
+    #     aws_access_key_id: AKIAKIAKI
+    #     aws_secret_access_key: 'secret123'
+    #   # The remote 'directory' to store your backups. For S3, this would be the bucket name.
+    #   remote_directory: 'my.s3.bucket'
+
+  ## GitLab Shell settings
+  gitlab_shell:
+    path: {{ gitlab_shell_dir }}/
+
+    # REPOS_PATH MUST NOT BE A SYMLINK!!!
+    repos_path: {{ gitlab_repos_dir }}/
+    hooks_path: {{ gitlab_shell_dir }}/hooks/
+    secret_file: {{ gitlab_conf_dir }}/gitlab_shell.secret
+
+    # Git over HTTP
+    upload_pack: true
+    receive_pack: true
+
+    # If you use non-standard ssh port you need to specify it
+    # ssh_port: 22
+
+  ## Git settings
+  # CAUTION!
+  # Use the default values unless you really know what you are doing
+  git:
+    bin_path: /usr/bin/git
+    # The next value is the maximum memory size grit can use
+    # Given in number of bytes per git object (e.g. a commit)
+    # This value can be increased if you have very large commits
+    max_size: {{ gitlab_commit_max_size * 1024 * 1024 }}
+    # Git timeout to read a commit, in seconds
+    timeout: 10
+
+  #
+  # 4. Extra customization
+  # ==========================
+
+  extra:
+    ## Google analytics. Uncomment if you want it
+{% if gitlab_google_analytics_id %}
+    google_analytics_id: {{ gitlab_google_analytics_id }}
+{% else %}
+    # google_analytics_id: '_your_tracking_id'
+{% endif %}
+
+    ## Piwik analytics.
+    # piwik_url: '_your_piwik_url'
+    # piwik_site_id: '_your_piwik_site_id'
+
+    ## Text under sign-in page (Markdown enabled)
+{% if gitlab_sign_in_text %}
+    sign_in_text: |
+      {{ gitlab_sign_in_text }}
+{% else %}
+    # sign_in_text: |
+    #   ![Company Logo](http://www.companydomain.com/logo.png)
+    #   [Learn more about CompanyName](http://www.companydomain.com/)
+{% endif %}
+
+  rack_attack:
+    git_basic_auth:
+      # Whitelist requests from 127.0.0.1 for web proxies (NGINX/Apache) with incorrect headers
+      # ip_whitelist: ["127.0.0.1"]
+      #
+      # Limit the number of Git HTTP authentication attempts per IP
+      # maxretry: 10
+      #
+      # Reset the auth attempt counter per IP after 60 seconds
+      # findtime: 60
+      #
+      # Ban an IP for one hour (3600s) after too many auth attempts
+      # bantime: 3600
+
+development:
+  <<: *base
+
+test:
+  <<: *base
+
+staging:
+  <<: *base

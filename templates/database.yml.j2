@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: {{ gitlab_db_name }}
+  pool: {{ gitlab_db_pool }}
+  username: {{ gitlab_db_user }}
+  password: {{ gitlab_db_pass }}
+  host: {{ gitlab_db_host }}
+  port: {{ gitlab_db_port }}
