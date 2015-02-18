@@ -1,0 +1,17 @@
+#!upstart
+# {{ ansible_managed }}
+
+description "GitLab (web)"
+author "Jakub Jirutka"
+
+start on starting gitlab and started gitlab-sidekiq
+stop on stopping gitlab and stopping gitlab-sidekiq
+
+env unicorn_config="{{ gitlab_conf_dir }}/unicorn.rb"
+
+reload signal USR1
+
+setuid {{ gitlab_user }}
+chdir {{ gitlab_base_dir }}
+
+exec /usr/local/bin/bundle exec unicorn_rails -c $unicorn_config -E production

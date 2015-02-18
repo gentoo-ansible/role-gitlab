@@ -22,13 +22,3 @@
     dest={{ gitlab_base_dir }}
     accept_hostkey=yes
   register: _gitlab_clone
-
-- name: fix gemfile - move therubyracer gem to a separate group
-  lineinfile: >
-    state=absent
-    dest={{ gitlab_base_dir }}/Gemfile
-    regexp='\s+gem "therubyracer"$'
-
-- lineinfile: >
-    line='gem "therubyracer", group: :therubyracer'
-    dest={{ gitlab_base_dir }}/Gemfile

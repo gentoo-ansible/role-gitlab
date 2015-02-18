@@ -1,0 +1,15 @@
+#!upstart
+# {{ ansible_managed }}
+
+description "GitLab"
+author "Jakub Jirutka"
+
+# postgresql is not an upstart service, so we can't depend on it :(
+start on filesystem and started redis-server
+stop on runlevel [016]
+
+pre-start script
+	# Prepare directory for the socket.
+	mkdir -p -m 755 /run/gitlab
+	chown git /run/gitlab
+end script

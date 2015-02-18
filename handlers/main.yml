@@ -3,8 +3,3 @@
   service: >
     name=gitlab
     state=restarted
-
-- name: reload gitlab
-  service: >
-    name=gitlab
-    state=reloaded

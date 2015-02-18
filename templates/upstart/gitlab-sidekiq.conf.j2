@@ -1,0 +1,17 @@
+#!upstart
+# {{ ansible_managed }}
+
+description "GitLab (Sidekiq)"
+author "Jakub Jirutka"
+
+start on starting gitlab
+stop on stopping gitlab
+
+env sidekiq_logfile="{{ gitlab_logs_dir }}/sidekiq.log"
+env sidekiq_queues="-q post_receive -q mailer -q system_hook
+	-q project_web_hook -q gitlab_shell -q common -q default"
+
+setuid {{ gitlab_user }}
+chdir {{ gitlab_base_dir }}
+
+exec /usr/local/bin/bundle exec sidekiq -L $sidekiq_logfile -e production $sidekiq_queues

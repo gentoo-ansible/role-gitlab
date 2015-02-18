@@ -37,7 +37,7 @@
     chmod 640 gitlab_shell.secret
     chdir={{ gitlab_conf_dir }}
     creates={{ gitlab_conf_dir }}/gitlab_shell.secret
-  notify: reload gitlab
+  notify: restart gitlab
 
 - name: configure gitlab
   template: >
@@ -51,7 +51,7 @@
     - { path: resque.yml }
     - { path: unicorn.rb }
     - { path: database.yml, mode: '0640' }
-  notify: reload gitlab
+  notify: restart gitlab
 
 - name: symlink gitlab configs to default location
   file: >
@@ -70,11 +70,4 @@
 #    dest={{ gitlab_conf_dir }}/environments/production.rb
 #    regexp='^[#\s]*config.log_level'
 #    line='  config.log_level = :warn'
-#  notify: reload gitlab
-
-- name: configure gitlab runscript
-  template: >
-    src=runscript.conf.j2
-    dest=/etc/conf.d/gitlab
-    owner=root group=root mode=0644
-  notify: restart gitlab
+#  notify: restart gitlab

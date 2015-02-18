@@ -1,19 +1,39 @@
 ---
+- name: configure the Brightbox APT repository
+  apt_repository: repo=ppa:brightbox/ruby-ng
+  tags: packages
+
 - name: install system dependencies
-  portage: package={{ item }}
+  apt: >
+    name={{ item }}
+    update_cache=yes
   with_items:
-    - '>=dev-lang/ruby-2.0.0'
-    - '>=dev-ruby/bundler-1.5.2'
-    - dev-db/redis
-    - '>=dev-vcs/git-1.7'
-    - virtual/mta
-    - virtual/ssh
-    - dev-libs/icu  # needed for charlock_holmes
-    - dev-libs/libxml2
-    - dev-libs/libxslt
-    - dev-util/cmake  # needed for rugged
-    - net-libs/nodejs  # needed for execjs
-    - virtual/pkgconfig  # needed for rugged
+    - git
+    - openssh-server
+    - ruby2.1
+    - ruby2.1-dev
+    - build-essential
+    - zlib1g-dev
+    - libyaml-dev
+    - libssl-dev
+    - libgdbm-dev
+    - libreadline-dev
+    - libncurses5-dev
+    - libffi-dev
+    - libxml2-dev
+    - libxslt1-dev
+    - libcurl4-openssl-dev
+    - libicu-dev
+    - libpq-dev
+    - python-docutils
+    - cmake
+    - ruby-pg
+  tags: packages
+
+- name: install bundler
+  gem: >
+    name=bundler
+    user_install=no
   tags: packages
 
 - name: create system group
@@ -61,11 +81,17 @@
     - { src: "{{ gitlab_logs_dir }}", dest: "{{ gitlab_base_dir }}/log" }
     - { src: "{{ gitlab_temp_dir }}", dest: "{{ gitlab_base_dir }}/tmp" }
 
-- name: install runscript
-  copy: >
-    src=runscript
-    dest=/etc/init.d/gitlab
-    owner=root group=root mode=0755
+- name: install upstart job configs
+  template: >
+    src=upstart/{{ item }}.j2
+    dest=/etc/init/{{ item }}
+    owner=root group=root mode=0644
+  with_items:
+    - gitlab.conf
+    - gitlab-sidekiq.conf
+    - gitlab-web.conf
+  notify: restart gitlab
+  tags: [ install, config ]
 
 - include: install_shell.yml
   sudo: yes
