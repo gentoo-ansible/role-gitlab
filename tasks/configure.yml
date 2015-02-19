@@ -7,9 +7,14 @@
     group={{ gitlab_group }}
     mode=0644
 
-- name: initialize authorized_keys file
+- name: create authorized_keys file if doesn't exist yet
+  command: >
+    touch '{{ gitlab_user_home }}/.ssh/authorized_keys'
+    creates={{ gitlab_user_home }}/.ssh/authorized_keys
+
+- name: ensure permissions of authorized_keys file
   file: >
-    state=touch
+    state=file
     path={{ gitlab_user_home }}/.ssh/authorized_keys
     owner={{ gitlab_user }}
     group={{ gitlab_group }}
