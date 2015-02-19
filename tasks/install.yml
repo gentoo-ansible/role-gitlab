@@ -48,7 +48,7 @@
     - { path: "{{ gitlab_temp_dir }}", mode: '0700' }
     - { path: "{{ gitlab_conf_dir }}", owner: 'root', group: 'root' }
     - { path: "{{ gitlab_repos_dir }}", mode: '02770' }
-    - { path: "{{ gitlab_satellites_dir }}", mode: '02750' }
+    - { path: "{{ gitlab_satellites_dir }}", mode: '0750' }
     - { path: "{{ gitlab_user_home }}/.ssh" }
 
 - name: make symlinks to default locations
