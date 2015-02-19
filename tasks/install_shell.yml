@@ -1,4 +1,18 @@
 ---
+- name: create authorized_keys file if doesn't exist yet
+  command: >
+    touch '{{ gitlab_user_home }}/.ssh/authorized_keys'
+    creates={{ gitlab_user_home }}/.ssh/authorized_keys
+
+- name: ensure permissions of authorized_keys file
+  file: >
+    state=file
+    path={{ gitlab_user_home }}/.ssh/authorized_keys
+    owner={{ gitlab_user }}
+    group={{ gitlab_group }}
+    mode=0600
+
+
   # The aim is to exclude unwanted directories and avoid its recreating
   # on every checkout.
 - name: prepare sparse git repository for gitlab-shell
