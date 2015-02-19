@@ -1,8 +1,8 @@
 # Ansible role for GitLab
 
-This role installs and configures GitLab on Gentoo Linux \*.
+This role installs and configures GitLab on Ubuntu or other Debian-based distro that uses Upstart \*.
 
-_\* If you’re using some Debian-based distro like Ubuntu, then switch to branch [ubuntu](https://github.com/jirutka/ansible-role-gitlab/tree/ubuntu). Note: I know how to support more distros in one role, but I don’t want to._
+_\* If you’re using Gentoo, then switch to branch [master](https://github.com/jirutka/ansible-role-gitlab/tree/master). Note: I know how to support more distros in one role, but I don’t want to._
 
 
 ## Directory structure
@@ -22,8 +22,10 @@ However, it’s not written in stone, most of the paths can be simply customized
     |   |   |-- gitlab.yml
     |   |   |-- resque.yml
     |   |   `-- unicorn.rb
-    |   `-- init.d
-    |       `-- gitlab  # OpenRC runscript
+    |   `-- init  # configs for upstart jobs/services
+    |       |-- gitlab.conf          # master config for GitLab that controls the ones below
+    |       |-- gitlab-sidekiq.conf  # config for background processes (Sidekiq)
+    |       `-- gitlab-web.conf      # config for web UI
     |-- opt
     |   |-- gitlab  # cloned gitlab sources
     |   |   `-- public  # static files served by a web server
