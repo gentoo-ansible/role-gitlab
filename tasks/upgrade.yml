@@ -32,3 +32,15 @@
   command: >
     bundle exec rake cache:clear RAILS_ENV=production
     chdir={{ gitlab_base_dir }}
+
+
+- name: (re)link hooks in repositories
+  command: >
+    {{ gitlab_shell_dir }}/bin/create-hooks
+
+- name: fix command paths in authorized_keys file
+  replace: >
+    dest={{ gitlab_user_home }}/.ssh/authorized_keys
+    regexp='^command="[^ "]+'
+    replace='command="{{ gitlab_shell_dir }}/bin/gitlab-shell'
+    backup=yes
