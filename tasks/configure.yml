@@ -70,3 +70,10 @@
     dest=/etc/conf.d/gitlab
     owner=root group=root mode=0644
   notify: restart gitlab
+
+- name: configure logrotate
+  template: >
+    src=logrotate.j2
+    dest=/etc/logrotate.d/gitlab
+    owner=root group=root mode=0644
+  ignore_errors: yes
