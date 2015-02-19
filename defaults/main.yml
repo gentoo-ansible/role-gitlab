@@ -52,6 +52,10 @@ gitlab_username_changing_enabled: "{{ gitlab_ldap | bool }}"
 #   base:        Base DN where to search users (required).
 #   user_filter: Filter users using RFC 4515 filter.
 #   active_directory: Is your LDAP an Active Directory server? Default is "false".
+#   mapping:     A hash that defines mapping of LDAP attributes to GitLab user.
+#     username:  Default is uid, userid, or sAMAccountName.
+#     email:     Default is mail, email, userPrincipalName.
+#     name:      Default is cn.
 gitlab_ldap: {}
 
 # The maximum size per git object (e.g. a commit) in megabytes.

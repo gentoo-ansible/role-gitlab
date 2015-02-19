@@ -209,11 +209,15 @@ production: &base
         method: {{ gitlab_ldap.method | default('ssl') | lower }} # "tls" or "ssl" or "plain"
         bind_dn: "{{ gitlab_ldap.bind_dn | default('') }}"
         password: "{{ gitlab_ldap.bind_pass | default('') }}"
+
+        # Mapping of attributes from LDAP entry onto GitLab user model.
         mapping:
 {% for key,val in (gitlab_ldap.mapping | default({})).items() %}
           {{ key }}: "{{ val }}"
 {% else %}
-          username: "uid"
+          # username: uid
+          # email: mail
+          # name: cn
 {% endfor %}
 
         # This setting specifies if LDAP server is Active Directory LDAP server.
