@@ -7,14 +7,6 @@
     group={{ gitlab_group }}
     mode=0644
 
-- name: initialize authorized_keys file
-  file: >
-    state=touch
-    path={{ gitlab_user_home }}/.ssh/authorized_keys
-    owner={{ gitlab_user }}
-    group={{ gitlab_group }}
-    mode=0640
-
 - name: configure gitlab-shell
   template: >
     src=gitlab-shell.yml.j2
@@ -71,3 +63,10 @@
 #    regexp='^[#\s]*config.log_level'
 #    line='  config.log_level = :warn'
 #  notify: restart gitlab
+
+- name: configure logrotate
+  template: >
+    src=logrotate.j2
+    dest=/etc/logrotate.d/gitlab
+    owner=root group=root mode=0644
+  ignore_errors: yes

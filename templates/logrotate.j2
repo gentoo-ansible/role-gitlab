@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+{{ gitlab_logs_dir }}/*.log {
+	missingok
+	compress
+	delaycompress
+	copytruncate
+}
