@@ -50,7 +50,7 @@
     append=yes
     home={{ gitlab_user_home }}
     createhome=yes
-    shell=/bin/bash
+    shell=/bin/sh
     system=yes
   tags: accounts
 
