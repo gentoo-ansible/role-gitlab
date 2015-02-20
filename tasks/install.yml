@@ -4,6 +4,7 @@
   with_items:
     - '>=dev-lang/ruby-2.0.0'
     - '>=dev-ruby/bundler-1.5.2'
+    - 'dev-db/postgresql[-server]'
     - dev-db/redis
     - '>=dev-vcs/git-1.7'
     - virtual/mta
