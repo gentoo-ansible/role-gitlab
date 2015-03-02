@@ -29,6 +29,7 @@ However, it’s not written in stone, most of the paths can be simply customized
     |-- opt
     |   |-- gitlab  # cloned gitlab sources
     |   |   `-- public  # static files served by a web server
+    |   |       `-- uploads  # user-uploaded files, e.g. issue attachements (SHOULD BE BACKED UP!)
     |   `-- gitlab-shell
     |       `-- hooks
     |-- run
