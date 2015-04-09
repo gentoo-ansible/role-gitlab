@@ -114,7 +114,7 @@ production: &base
     #   :smtp          - send emails using SMTP server.
     #   :letter_opener - open sent emails in browser.
     #   :test          - save emails to ActionMailer::Base.deliveries array.
-    delivery_method: :smtp
+    delivery_method: :{{ gitlab_delivery_method }}
 
     # Settings for the :sendmail delivery method.
     sendmail_settings:

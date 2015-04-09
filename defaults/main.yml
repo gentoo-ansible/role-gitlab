@@ -85,8 +85,15 @@ gitlab_email_from: "gitlab@{{ gitlab_host }}"
 # Email address used in the "Reply-To" field in mails sent by GitLab.
 gitlab_email_reply_to: "{{ gitlab_email_from }}"
 
+# Method used to send emails. Possible values are:
+#   sendmail      - send emails using sendmail command (default).
+#   smtp          - send emails using SMTP server.
+#   letter_opener - open sent emails in browser.
+#   test          - save emails to ActionMailer::Base.deliveries array.
+gitlab_delivery_method: sendmail
+
 # Hostname of the SMTP server used to send emails.
-gitlab_smtp_host: "{{ smtp_host | default('localhost') }}"
+gitlab_smtp_host: "{{ smtp_host | default(inventory_hostname) }}"
 
 # Port of the SMTP server used to send emails.
 gitlab_smtp_port: "{{ smtp_port | default(25) }}"
