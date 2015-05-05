@@ -6,7 +6,6 @@
   tags: config
 
 - include: database.yml
-  delegate_to: "{{ gitlab_db_delegate_to }}"
   sudo: yes
   sudo_user: postgres
   tags: database

@@ -1,11 +1,13 @@
 ---
 - name: create database user
+  delegate_to: "{{ gitlab_db_delegate_to }}"
   postgresql_user: >
     name={{ gitlab_db_user }}
     password={{ gitlab_db_pass }}
   tags: accounts
 
 - name: create database
+  delegate_to: "{{ gitlab_db_delegate_to }}"
   postgresql_db: >
     name={{ gitlab_db_name }}
     owner={{ gitlab_db_user }}
