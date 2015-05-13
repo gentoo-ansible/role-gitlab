@@ -57,7 +57,7 @@ production: &base
     #   MODERN = 3
     #   GRAY   = 4
     #   COLOR  = 5
-    default_theme: 4 # default: 2
+    # default_theme: 2 # default: 2
 
     ## Users can create accounts
     # This also allows normal users to sign up for accounts themselves
@@ -77,8 +77,8 @@ production: &base
     # If a commit message matches this regular expression, all issues referenced from the matched text will be closed.
     # This happens when the commit is pushed or merged into the default branch of a project.
     # When not specified the default issue_closing_pattern as specified below will be used.
-    # Tip: you can test your closing pattern at http://rubular.com
-    # issue_closing_pattern: '((?:[Cc]los(?:e[sd]|ing)|[Ff]ix(?:e[sd]|ing)?) +(?:(?:issues? +)?#\d+(?:(?:, *| +and +)?))+)'
+    # Tip: you can test your closing pattern at http://rubular.com.
+    # issue_closing_pattern: '((?:[Cc]los(?:e[sd]?|ing)|[Ff]ix(?:e[sd]|ing)?) +(?:(?:issues? +)?#\d+(?:(?:, *| +and +)?))+)'
 
     ## Default project features settings
     default_projects_features:
@@ -105,6 +105,7 @@ production: &base
 
     # Email address used in the "From" field in mails sent by GitLab.
     from: "{{ gitlab_email_from }}"
+    display_name: "{{ gitlab_email_display_name }}"
 
     # Email address used in the "Reply-To" field in mails sent by GitLab (default: noreply@<host>).
     reply_to: "{{ gitlab_email_reply_to }}"
@@ -283,6 +284,8 @@ production: &base
       # - { name: 'gitlab', app_id: 'YOUR APP ID',
       #     app_secret: 'YOUR APP SECRET',
       #     args: { scope: 'api' } }
+      # - { name: 'bitbucket', app_id: 'YOUR_APP_ID',
+      #     app_secret: 'YOUR_APP_SECRET'}
 
 
 
@@ -317,6 +320,9 @@ production: &base
     # REPOS_PATH MUST NOT BE A SYMLINK!!!
     repos_path: {{ gitlab_repos_dir }}/
     hooks_path: {{ gitlab_shell_dir }}/hooks/
+
+    # File that contains the secret key for verifying access for gitlab-shell.
+    # Default is .gitlab_shell_secret in the root directory.
     secret_file: {{ gitlab_conf_dir }}/gitlab_shell.secret
 
     # Git over HTTP
@@ -366,6 +372,9 @@ production: &base
 
   rack_attack:
     git_basic_auth:
+      # Rack Attack IP banning enabled
+      # enabled: true
+      #
       # Whitelist requests from 127.0.0.1 for web proxies (NGINX/Apache) with incorrect headers
       # ip_whitelist: ["127.0.0.1"]
       #

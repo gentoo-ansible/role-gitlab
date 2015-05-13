@@ -9,15 +9,15 @@
 gitlab_source_url: https://github.com/jirutka/gitlabhq.git
 
 # Revision (tag or branch) of the gitlabhq to checkout.
-gitlab_source_rev: 7-7-stable-cvut
+gitlab_source_rev: 7-10-cvut
 
 # URL of the gitlab-shell repository to clone.
 # Note: This repo is a fork that contains important patches that are not merged
 # into upstream yet.
-gitlab_shell_source_url: https://github.com/jirutka/gitlab-shell.git
+gitlab_shell_source_url: https://github.com/gitlabhq/gitlab-shell.git
 
 # Revision (tag or branch) of the gitlab-shell to checkout.
-gitlab_shell_source_rev: patch-1  # 2.4.3
+gitlab_shell_source_rev: v2.6.2
 
 #
 # GitLab settings
@@ -81,6 +81,9 @@ gitlab_initial_root_password: 5iveL!fe
 
 # Email address used in the "From" field in mails sent by GitLab.
 gitlab_email_from: "gitlab@{{ gitlab_host }}"
+
+# Name used in the "From" field in mails sent by GitLab.
+gitlab_email_display_name: "GitLab"
 
 # Email address used in the "Reply-To" field in mails sent by GitLab.
 gitlab_email_reply_to: "{{ gitlab_email_from }}"

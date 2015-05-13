@@ -21,4 +21,4 @@ gitlab_shell_sparsecheckout:
   - '!/support'
 
 gitlab_bundle_install_opts: "-j{{ ansible_processor_count }} --deployment \
-    --without aws development kerberos mysql test therubyracer"
+    --without aws development kerberos mysql test"
