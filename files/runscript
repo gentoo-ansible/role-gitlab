@@ -17,7 +17,7 @@ description_reload="Reload the GitLab configuration."
 
 : ${sidekiq_pidfile:=/run/gitlab/sidekiq.pid}
 : ${sidekiq_logfile:=/var/log/gitlab/sidekiq.log}
-sidekiq_queues=(${sidekiq_queues:-post_receive mailer system_hook project_web_hook gitlab_shell common default})
+sidekiq_queues=(${sidekiq_queues:-post_receive mailer archive_repo system_hook project_web_hook gitlab_shell common default})
 
 required_files="$unicorn_config"
 
