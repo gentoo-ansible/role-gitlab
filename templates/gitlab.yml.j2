@@ -368,6 +368,10 @@ production: &base
     #   [Learn more about CompanyName](http://www.companydomain.com/)
 {% endif %}
 
+    ## Enable MathJax
+    ## Note: This is not in upstream yet!
+    mathjax_enabled: {{ 'true' if gitlab_mathjax_enabled | bool else 'false' }}
+
   rack_attack:
     git_basic_auth:
       # Rack Attack IP banning enabled

@@ -71,6 +71,10 @@ gitlab_sign_in_text: ''
 # Google analytics tracking ID.
 gitlab_google_analytics_id: ''
 
+# Enable MathJax?
+# Note: This is not in upstream yet!
+gitlab_mathjax_enabled: false
+
 # The initial password for the GitLab root (admin) user.
 # It must be at least 8 chars long!
 gitlab_initial_root_password: 5iveL!fe
