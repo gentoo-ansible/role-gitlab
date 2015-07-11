@@ -9,7 +9,7 @@
 gitlab_source_url: https://github.com/jirutka/gitlabhq.git
 
 # Revision (tag or branch) of the gitlabhq to checkout.
-gitlab_source_rev: 7-10-cvut
+gitlab_source_rev: 7-12-cvut
 
 # URL of the gitlab-shell repository to clone.
 # Note: This repo is a fork that contains important patches that are not merged
@@ -17,7 +17,7 @@ gitlab_source_rev: 7-10-cvut
 gitlab_shell_source_url: https://github.com/gitlabhq/gitlab-shell.git
 
 # Revision (tag or branch) of the gitlab-shell to checkout.
-gitlab_shell_source_rev: v2.6.2
+gitlab_shell_source_rev: v2.6.3
 
 #
 # GitLab settings
