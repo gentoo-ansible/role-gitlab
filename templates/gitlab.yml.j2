@@ -190,7 +190,7 @@ production: &base
         # Mapping of attributes from LDAP entry onto GitLab user model.
         mapping:
 {% for key,val in (gitlab_ldap.mapping | default({})).items() %}
-          {{ key }}: "{{ val }}"
+          {{ key }}: [ "{{ val if val is string else val | join('", "') }}" ]
 {% else %}
           # username: uid
           # email: mail
